@@ -5,7 +5,7 @@ import threading
 import sys
 
 UDP_IP = sys.argv[1]
-THREADS = sys.argv[2]
+THREADS = int(sys.argv[2])
 UDP_PORT = 53
 
 def udp():
